@@ -1,0 +1,32 @@
+body {
+    min-width: 800px;
+    min-height: 800px;
+    overflow-x: hidden; /* Prevent horizontal scrolling if content exceeds viewport */
+}
+
+h3 {
+    color: #333;
+}
+.select-container {
+    margin: 15px 0;
+}
+#star_plot {
+    margin-top: 20px;
+}
+#star_plot_div {
+    border: 2px solid black;
+    display: inline-block;       /* Shrinks to fit content */
+    overflow: hidden;            /* Prevent overflow */
+    padding: 0;                  /* Remove extra space */
+    margin: 100;                   /* Remove external space */
+    box-sizing: border-box;      /* Ensure border fits inside */
+}
+
+#stacked_bar_plot {
+    border: 2px solid black;
+    display: inline-block;       /* Shrinks to fit content */
+    overflow: hidden;            /* Prevent overflow */
+    padding: 0;                  /* Remove extra space */
+    margin: 100;                   /* Remove external space */
+    box-sizing: border-box;      /* Ensure border fits inside */
+}
