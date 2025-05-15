@@ -7,26 +7,34 @@
     </head>
 
     <body>
-        <h3>Music and Mental Health Survey Results</h3>
-        <!-- Visualizations -->
-        <div id="heat_map">
-        </div>
-
-        <div id="star_plot_div">
-            <div class="select-container" style="margin-bottom: 20px;">
-                <label for="genre-select" style="margin-right: 10px;">Select Music Genre: </label>
-                <select id="genre-select" name="genre-select"></select>
+        <div class="dashboard-container">
+            <h3>Effect of Music on Mental Health Survey Results</h3>
+            
+            <!-- Heat Map -->
+            <div id="heat_map_container" class="visualization-container">
+                <div class="visualization-header">Correlation between Survey Selection and Mental Health</div>
+                <div id="heat_map"></div>
             </div>
-            <div id="star_plot">
+            
+            <!-- Star Plot and Stacked Bar -->
+            <div class="two-column">
+                <div class="visualization-container">
+                    <div class="visualization-header">Music Genre's Impact on Mental Health</div>
+                    <div class="select-container">
+                        <label for="genre-select">Select Music Genre: </label>
+                        <select id="genre-select" name="genre-select"></select>
+                    </div>
+                    <div id="star_plot"></div>
+                </div>
+                
+                <div class="visualization-container">
+                    <div class="visualization-header">Listening Time vs Mental Health</div>
+                    <div id="stacked_bar_plot"></div>
+                </div>
             </div>
         </div>
 
-        <div id="stacked_bar_plot">
-        </div>
-
-        <!-- Load scripts -->
         <script src="https://d3js.org/d3.v5.min.js"></script>
         <script src="script.js"></script>
-        
     </body>
 </html>
