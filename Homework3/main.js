@@ -370,13 +370,14 @@ function generateBarPlot(barObjects) {
     // set the dimensions and margins of the graph
     const containerSize = getContainerSize("bar-graph-viz");
     const margin = { top: 30, right: 30, bottom: 70, left: 60 },
-        width = containerSize[0] - margin.left - margin.right,
+        width = (containerSize[0] - margin.left - margin.right) / 2,
         height = containerSize[1] - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     const svg = d3
         .select("#bar-graph-viz")
         .append("svg")
+        .attr("id", "bar-graph-svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
