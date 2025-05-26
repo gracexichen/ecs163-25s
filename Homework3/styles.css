@@ -2,7 +2,7 @@ body, html {
     margin: 0;
     padding: 0;
     height: 100vh;
-    width: 100vh;
+    width: 100vw;
 }
 
 #container {
@@ -10,7 +10,7 @@ body, html {
     grid-template-rows: 1fr 1fr;
     grid-template-columns: 1fr 1fr;
     height: 100vh;
-    width: 100vh;
+    width: 100vw;
 }
 
 #bar-graph-viz {
