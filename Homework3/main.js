@@ -15,6 +15,8 @@ function getContainerSize(container_id) {
 
 // PIE CHART ----------------------------------------------->
 function preprocessPieChart(type) {
+    // Preprocesses data for pie chart
+    // Counts number of pokemon in each catch rate range
     let pieObjects = {
         "0-51": 0,
         "51-102": 0,
@@ -37,8 +39,8 @@ function preprocessPieChart(type) {
                 const key = pieScale(rowCatchRate);
                 pieObjects[key] += 1;
             }
-        })
-        console.log("PIE OBJECTS",pieObjects);
+        });
+        console.log("PIE OBJECTS", pieObjects);
         Object.keys(pieObjects).forEach((key) => {
             if (pieObjects[key] === 0) {
                 delete pieObjects[key];
@@ -48,7 +50,8 @@ function preprocessPieChart(type) {
     });
 }
 
-function generatePieChart(pieObjects) {        
+function generatePieChart(pieObjects) {
+    // Pie chart dimensions
     const containerSize = getContainerSize("pie-chart-viz");
     var width = containerSize[0];
     var height = containerSize[1];
@@ -58,6 +61,7 @@ function generatePieChart(pieObjects) {
     var container = d3.select("#pie-chart-viz");
     var svg = container.select("svg");
 
+    // Creat svg
     if (svg.empty()) {
         svg = container
             .append("svg")
@@ -65,6 +69,7 @@ function generatePieChart(pieObjects) {
             .attr("height", height);
     }
 
+    // Create group
     var g = svg.select("g");
     if (g.empty()) {
         g = svg
@@ -75,6 +80,7 @@ function generatePieChart(pieObjects) {
             );
     }
 
+    // Remove old title if there is one
     svg.select(".chart-title").remove();
     svg.append("text")
         .attr("class", "chart-title")
@@ -85,11 +91,13 @@ function generatePieChart(pieObjects) {
         .style("font-weight", "bold")
         .text("Catch Rates");
 
+    // Define color scheme
     var color = d3
         .scaleOrdinal()
         .domain(Object.keys(pieObjects))
         .range(d3.schemePaired);
 
+    // Compute the position of each group on the pie
     var pie = d3
         .pie()
         .value((d) => d.value)
@@ -98,15 +106,15 @@ function generatePieChart(pieObjects) {
     var data_ready = pie(d3.entries(pieObjects));
     var arcGenerator = d3.arc().innerRadius(0).outerRadius(radius);
 
-    // JOIN
+    // Join the slices
     var slices = g
         .selectAll("path")
         .data(data_ready, (d) => d.data.key);
 
-    // EXIT
+    // exit slices animation
     slices.exit().remove();
 
-    // ENTER
+    // enter slices animation
     slices
         .enter()
         .append("path")
@@ -117,9 +125,9 @@ function generatePieChart(pieObjects) {
         .each(function (d) {
             this._current = d; // Initialize current angle
         })
-        .attr("d", arcGenerator)
+        .attr("d", arcGenerator);
 
-    // UPDATE
+    // update slices animation
     slices
         .transition()
         .duration(1000)
@@ -129,15 +137,15 @@ function generatePieChart(pieObjects) {
             return (t) => arcGenerator(interpolate(t));
         });
 
-    // LABELS
+    // labels
     var labels = g
         .selectAll("text")
         .data(data_ready, (d) => d.data.key);
 
-    // EXIT labels
+    // exit labels animation
     labels.exit().remove();
 
-    // ENTER labels
+    // enter labels animation
     labels
         .enter()
         .append("text")
@@ -153,7 +161,7 @@ function generatePieChart(pieObjects) {
         })
         .style("opacity", 1);
 
-    // UPDATE labels
+    // update labels animation
     labels
         .transition()
         .duration(1000)
@@ -168,6 +176,8 @@ function generatePieChart(pieObjects) {
 
 // STAR CHART ----------------------------------------------->
 function preprocessStarPlot(type) {
+    // Preprocess data for star plot
+    // Return star plot objects with average stats given type
     return d3.csv("data/pokemon_alopez247.csv").then((data) => {
         let stats = {
             HP: 0,
@@ -204,10 +214,9 @@ function preprocessStarPlot(type) {
 }
 
 function drawStarPolygon(stats, type) {
-    // const types = Object.keys(stats);
 
     const maxValue = 100;
-    // Add scale for mental health scores
+    // Add scale for stats scores
     rScale = d3
         .scaleLinear()
         .domain([0, maxValue])
@@ -230,7 +239,7 @@ function drawStarPolygon(stats, type) {
         value: stats[axis],
     }));
 
-    // Create the line of the polygon and fills it with corresponding color
+    // Create the line of the polygon and fills it with the color red
     svg.append("path")
         .attr("class", "radar-area")
         .datum(radarData)
@@ -284,6 +293,7 @@ function generateStarChart() {
         .append("g")
         .attr("transform", `translate(${width / 2},${height / 2})`);
 
+    // Add title
     svg.append("text")
         .attr("x", -width / 2 + margin.left)
         .attr("text-anchor", "middle")
@@ -297,7 +307,7 @@ function generateStarChart() {
     // Math :C
     angleSlice = (Math.PI * 2) / axes.length;
 
-    // Add the circles that represent the levels (scores of the mental illness)
+    // Add the circles that represent the levels (stats scores)
     const levels = 10;
     for (let level = 1; level <= levels; level++) {
         const levelFactor = (radius * level) / levels;
@@ -348,6 +358,8 @@ function generateStarChart() {
 
 // BAR PLOT ----------------------------------------------->
 function preprocessBarPlot() {
+    // Preprocess data for bar plot
+    // Returns count of each pokemon type
     return d3.csv("data/pokemon_alopez247.csv").then((data) => {
         let barObjects = {};
 
@@ -396,11 +408,13 @@ function generateBarPlot(barObjects) {
         .domain(data.map((d) => d.Type))
         .padding(0.2);
 
+    // Add X axis
     const gx = svg
         .append("g")
         .attr("transform", `translate(0, ${height})`)
         .call(d3.axisBottom(x));
 
+    // Text label for the x axis
     gx.selectAll("text")
         .attr("transform", "translate(-10,0)rotate(-45)")
         .style("text-anchor", "end");
@@ -422,11 +436,13 @@ function generateBarPlot(barObjects) {
         .attr("height", (d) => height - y(d.Count))
         .attr("fill", "#3b4cca")
         .on("mouseover", function () {
+            // Highlight the hovered bar
             if (!d3.select(this).classed("selected")) {
                 d3.select(this).attr("fill", "#ff0000");
             }
         })
         .on("mouseout", function () {
+            // Unhighlight the hovered bar
             if (!d3.select(this).classed("selected")) {
                 d3.select(this).attr("fill", "#3b4cca");
             }
@@ -436,11 +452,13 @@ function generateBarPlot(barObjects) {
             const clickedBar = d3.select(this);
 
             if (clickedBar.classed("selected")) {
+                // Unselect the bar
                 clickedBar
                     .classed("selected", false)
                     .attr("fill", "#3b4cca");
                 selection = null;
             } else {
+                // Select the bar
                 allBars
                     .classed("selected", false)
                     .attr("fill", "#3b4cca");
@@ -502,14 +520,19 @@ function generateBarPlot(barObjects) {
     function zoomed() {
         // Get the current zoom transform
         const transform = d3.event.transform;
-
         // Apply transform to bars
-        bars.attr("transform", transform);
+        bars.attr(
+            "transform",
+            `translate(${transform.x}, 0) scale(${transform.k}, 1)`
+        );
 
+        // Apply transform to x-axis
         const newRange = [
             transform.applyX(0),
             transform.applyX(width),
         ];
+
+        // Update x-scale
         const xz = d3
             .scaleBand()
             .range(newRange)
@@ -541,6 +564,7 @@ function main() {
 
 main();
 
+// Listen for window resize, resize charts when event is triggered
 window.addEventListener("resize", function () {
     const barGraphContainer =
         document.getElementById("bar-graph-viz");
