@@ -494,8 +494,8 @@ function generateBarPlot(barObjects) {
             [width, height],
         ])
         .translateExtent([
-            [-width * 4, 0],
-            [width * 5, height],
+            [-width, 0],
+            [width, height],
         ])
         .on("zoom", zoomed);
 
@@ -506,8 +506,6 @@ function generateBarPlot(barObjects) {
         // Apply transform to bars
         bars.attr("transform", transform);
 
-        // For band scales, we need to manually adjust the axis
-        // Create a new scale with adjusted range
         const newRange = [
             transform.applyX(0),
             transform.applyX(width),
