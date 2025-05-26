@@ -512,7 +512,7 @@ function generateBarPlot(barObjects) {
             [width, height],
         ])
         .translateExtent([
-            [-width, 0],
+            [0, 0],
             [width, height],
         ])
         .on("zoom", zoomed);
