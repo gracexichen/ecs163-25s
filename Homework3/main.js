@@ -5,6 +5,7 @@ let selection = null;
 let angleSlice, svg, axes; //Star plot globals
 
 function getContainerSize(container_id) {
+    // Gets size of container it's in (based on css)
     const container = document.getElementById(container_id);
     const rect = container.getBoundingClientRect();
     const width = rect.width;
@@ -214,7 +215,6 @@ function preprocessStarPlot(type) {
 }
 
 function drawStarPolygon(stats, type) {
-
     const maxValue = 100;
     // Add scale for stats scores
     rScale = d3
@@ -379,13 +379,13 @@ function preprocessBarPlot() {
 }
 
 function generateBarPlot(barObjects) {
-    // set the dimensions and margins of the graph
+    // Dimensions
     const containerSize = getContainerSize("bar-graph-viz");
     const margin = { top: 30, right: 30, bottom: 70, left: 60 },
         width = (containerSize[0] - margin.left - margin.right) / 2,
         height = containerSize[1] - margin.top - margin.bottom;
 
-    // append the svg object to the body of the page
+    // Create svg
     const svg = d3
         .select("#bar-graph-viz")
         .append("svg")
@@ -398,32 +398,17 @@ function generateBarPlot(barObjects) {
             `translate(${margin.left}, ${margin.top})`
         );
 
-    data = barObjects;
-    // Parse the Data
+    const data = barObjects;
 
-    // X axis
+    // Define scales
     const x = d3
         .scaleBand()
         .range([0, width])
         .domain(data.map((d) => d.Type))
         .padding(0.2);
-
-    // Add X axis
-    const gx = svg
-        .append("g")
-        .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(x));
-
-    // Text label for the x axis
-    gx.selectAll("text")
-        .attr("transform", "translate(-10,0)rotate(-45)")
-        .style("text-anchor", "end");
-
-    // Add Y axis
     const y = d3.scaleLinear().domain([0, 120]).range([height, 0]);
-    svg.append("g").call(d3.axisLeft(y));
 
-    // Bars
+    // Draw bars
     const bars = svg
         .selectAll(".mybar")
         .data(data)
@@ -436,13 +421,13 @@ function generateBarPlot(barObjects) {
         .attr("height", (d) => height - y(d.Count))
         .attr("fill", "#3b4cca")
         .on("mouseover", function () {
-            // Highlight the hovered bar
+            // Highlight selected bar
             if (!d3.select(this).classed("selected")) {
                 d3.select(this).attr("fill", "#ff0000");
             }
         })
         .on("mouseout", function () {
-            // Unhighlight the hovered bar
+            // Unhighlight selected bar
             if (!d3.select(this).classed("selected")) {
                 d3.select(this).attr("fill", "#3b4cca");
             }
@@ -452,13 +437,13 @@ function generateBarPlot(barObjects) {
             const clickedBar = d3.select(this);
 
             if (clickedBar.classed("selected")) {
-                // Unselect the bar
+                // Unselect
                 clickedBar
                     .classed("selected", false)
                     .attr("fill", "#3b4cca");
                 selection = null;
             } else {
-                // Select the bar
+                // Select
                 allBars
                     .classed("selected", false)
                     .attr("fill", "#3b4cca");
@@ -468,7 +453,7 @@ function generateBarPlot(barObjects) {
                 selection = data[d].Type;
             }
 
-            // Update other charts
+            // Generate plots based on types
             preprocessStarPlot(selection).then((stats) =>
                 drawStarPolygon(stats, selection)
             );
@@ -477,7 +462,18 @@ function generateBarPlot(barObjects) {
             );
         });
 
-    // Add chart title
+    // Draw x and y axis
+    const gx = svg
+        .append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .call(d3.axisBottom(x));
+    gx.selectAll("text")
+        .attr("transform", "translate(-10,0)rotate(-45)")
+        .style("text-anchor", "end");
+
+    svg.append("g").call(d3.axisLeft(y));
+
+    // Labels and title
     svg.append("text")
         .attr("x", width / 2)
         .attr("y", -10)
@@ -486,7 +482,6 @@ function generateBarPlot(barObjects) {
         .style("font-weight", "bold")
         .text("Pokemon Type Distribution");
 
-    // Add X axis label
     svg.append("text")
         .attr("class", "axis-label")
         .attr("x", width / 2)
@@ -494,7 +489,6 @@ function generateBarPlot(barObjects) {
         .style("text-anchor", "middle")
         .text("Pokemon Type");
 
-    // Add Y axis label
     svg.append("text")
         .attr("class", "axis-label")
         .attr("transform", "rotate(-90)")
@@ -503,7 +497,7 @@ function generateBarPlot(barObjects) {
         .style("text-anchor", "middle")
         .text("Count");
 
-    // Fixed zoom implementation for bar chart
+    // Zoom
     const zoom = d3
         .zoom()
         .scaleExtent([1, 5])
@@ -517,38 +511,34 @@ function generateBarPlot(barObjects) {
         ])
         .on("zoom", zoomed);
 
+    // Zoom function (includes panning)
     function zoomed() {
-        // Get the current zoom transform
         const transform = d3.event.transform;
-        // Apply transform to bars
         bars.attr(
             "transform",
             `translate(${transform.x}, 0) scale(${transform.k}, 1)`
         );
 
-        // Apply transform to x-axis
         const newRange = [
             transform.applyX(0),
             transform.applyX(width),
         ];
 
-        // Update x-scale
         const xz = d3
             .scaleBand()
             .range(newRange)
             .domain(x.domain())
             .padding(0.2);
 
-        // Update x-axis
         gx.call(d3.axisBottom(xz))
             .selectAll("text")
             .attr("transform", "translate(-10,0)rotate(-45)")
             .style("text-anchor", "end");
     }
 
-    // Apply zoom behavior to svg
     svg.call(zoom);
 }
+
 
 function main() {
     preprocessBarPlot().then((barObjects) =>
