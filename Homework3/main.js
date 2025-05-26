@@ -395,10 +395,13 @@ function generateBarPlot(barObjects) {
         .range([0, width])
         .domain(data.map((d) => d.Type))
         .padding(0.2);
-    svg.append("g")
+
+    const gx = svg
+        .append("g")
         .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(x))
-        .selectAll("text")
+        .call(d3.axisBottom(x));
+
+    gx.selectAll("text")
         .attr("transform", "translate(-10,0)rotate(-45)")
         .style("text-anchor", "end");
 
@@ -407,11 +410,12 @@ function generateBarPlot(barObjects) {
     svg.append("g").call(d3.axisLeft(y));
 
     // Bars
-    svg.selectAll(".mybar") // Changed to class selector (note the dot)
+    const bars = svg
+        .selectAll(".mybar")
         .data(data)
         .enter()
         .append("rect")
-        .attr("class", "mybar") // Added class for consistent selection
+        .attr("class", "mybar")
         .attr("x", (d) => x(d.Type))
         .attr("y", (d) => y(d.Count))
         .attr("width", x.bandwidth())
@@ -436,8 +440,7 @@ function generateBarPlot(barObjects) {
                     .classed("selected", false)
                     .attr("fill", "#3b4cca");
                 selection = null;
-            }
-            else {
+            } else {
                 allBars
                     .classed("selected", false)
                     .attr("fill", "#3b4cca");
@@ -481,6 +484,49 @@ function generateBarPlot(barObjects) {
         .attr("y", -margin.left + 20)
         .style("text-anchor", "middle")
         .text("Count");
+
+    // Fixed zoom implementation for bar chart
+    const zoom = d3
+        .zoom()
+        .scaleExtent([1, 5])
+        .extent([
+            [0, 0],
+            [width, height],
+        ])
+        .translateExtent([
+            [-width * 4, 0],
+            [width * 5, height],
+        ])
+        .on("zoom", zoomed);
+
+    function zoomed() {
+        // Get the current zoom transform
+        const transform = d3.event.transform;
+
+        // Apply transform to bars
+        bars.attr("transform", transform);
+
+        // For band scales, we need to manually adjust the axis
+        // Create a new scale with adjusted range
+        const newRange = [
+            transform.applyX(0),
+            transform.applyX(width),
+        ];
+        const xz = d3
+            .scaleBand()
+            .range(newRange)
+            .domain(x.domain())
+            .padding(0.2);
+
+        // Update x-axis
+        gx.call(d3.axisBottom(xz))
+            .selectAll("text")
+            .attr("transform", "translate(-10,0)rotate(-45)")
+            .style("text-anchor", "end");
+    }
+
+    // Apply zoom behavior to svg
+    svg.call(zoom);
 }
 
 function main() {
